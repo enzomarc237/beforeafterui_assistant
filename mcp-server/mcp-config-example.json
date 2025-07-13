@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "beforeafterui": {
+      "command": "node",
+      "args": ["./dist/index.js"],
+      "cwd": "./mcp-server",
+      "env": {
+        "GEMINI_API_KEY": "your-gemini-api-key-here"
+      }
+    }
+  }
+}

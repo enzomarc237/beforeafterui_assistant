@@ -1,0 +1,23 @@
+{
+  "name": "beforeafterui-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for AI-powered UI transformation assistant",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "~5.7.2"
+  },
+  "keywords": ["mcp", "ui", "transformation", "ai", "design"],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,251 @@
+#!/usr/bin/env node
+
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+  Tool,
+} from "@modelcontextprotocol/sdk/types.js";
+import { GeminiService } from "./geminiService.js";
+import { 
+  TechStack, 
+  UITransformationRequest, 
+  ImageAnalysisRequest,
+  UITransformationResponse,
+  ImageAnalysisResponse 
+} from "./types.js";
+
+class BeforeAfterUIServer {
+  private server: Server;
+  private geminiService: GeminiService;
+
+  constructor() {
+    this.server = new Server(
+      {
+        name: "beforeafterui-server",
+        version: "1.0.0",
+      },
+      {
+        capabilities: {
+          tools: {},
+        },
+      }
+    );
+
+    // Initialize Gemini service
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY environment variable is required");
+    }
+    this.geminiService = new GeminiService(apiKey);
+
+    this.setupToolHandlers();
+  }
+
+  private setupToolHandlers() {
+    // List available tools
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return {
+        tools: [
+          {
+            name: "transform_ui",
+            description: "Transform a UI from current state to target design using before/after images and optional code",
+            inputSchema: {
+              type: "object",
+              properties: {
+                beforeImage: {
+                  type: "string",
+                  description: "Base64 encoded image of the current UI state"
+                },
+                afterImage: {
+                  type: "string",
+                  description: "Base64 encoded image of the target UI design"
+                },
+                techStack: {
+                  type: "string",
+                  enum: Object.values(TechStack),
+                  description: "Technology stack to use for implementation"
+                },
+                beforeCodeFiles: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string" },
+                      content: { type: "string" }
+                    },
+                    required: ["name", "content"]
+                  },
+                  description: "Optional array of current code files"
+                },
+                additionalInstructions: {
+                  type: "string",
+                  description: "Optional additional instructions for the transformation"
+                }
+              },
+              required: ["beforeImage", "afterImage", "techStack"]
+            }
+          },
+          {
+            name: "analyze_ui_image",
+            description: "Analyze a single UI image for components, design patterns, accessibility, or general assessment",
+            inputSchema: {
+              type: "object",
+              properties: {
+                imageData: {
+                  type: "string",
+                  description: "Base64 encoded image data"
+                },
+                analysisType: {
+                  type: "string",
+                  enum: ["ui-components", "design-patterns", "accessibility", "general"],
+                  description: "Type of analysis to perform"
+                },
+                techStack: {
+                  type: "string",
+                  enum: Object.values(TechStack),
+                  description: "Optional technology stack for implementation suggestions"
+                }
+              },
+              required: ["imageData", "analysisType"]
+            }
+          },
+          {
+            name: "list_tech_stacks",
+            description: "List all supported technology stacks",
+            inputSchema: {
+              type: "object",
+              properties: {}
+            }
+          }
+        ] as Tool[]
+      };
+    });
+
+    // Handle tool calls
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      try {
+        switch (name) {
+          case "transform_ui":
+            return await this.handleUITransformation(args as unknown as UITransformationRequest);
+            
+          case "analyze_ui_image":
+            return await this.handleImageAnalysis(args as unknown as ImageAnalysisRequest);
+            
+          case "list_tech_stacks":
+            return await this.handleListTechStacks();
+            
+          default:
+            throw new Error(`Unknown tool: ${name}`);
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`
+            }
+          ]
+        };
+      }
+    });
+  }
+
+  private async handleUITransformation(request: UITransformationRequest) {
+    try {
+      const analysis = await this.geminiService.analyzeUITransformation(request);
+      
+      const response: UITransformationResponse = {
+        analysis,
+        success: true
+      };
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `# UI Transformation Analysis\n\n${analysis}`
+          }
+        ]
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      return {
+        content: [
+          {
+            type: "text",
+            text: `# UI Transformation Failed\n\nError: ${errorMessage}`
+          }
+        ]
+      };
+    }
+  }
+
+  private async handleImageAnalysis(request: ImageAnalysisRequest) {
+    try {
+      const analysis = await this.geminiService.analyzeImage(request);
+      
+      const response: ImageAnalysisResponse = {
+        analysis,
+        success: true
+      };
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `# UI Image Analysis (${request.analysisType})\n\n${analysis}`
+          }
+        ]
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      return {
+        content: [
+          {
+            type: "text",
+            text: `# Image Analysis Failed\n\nError: ${errorMessage}`
+          }
+        ]
+      };
+    }
+  }
+
+  private async handleListTechStacks() {
+    const stacks = Object.entries(TechStack).map(([key, value]) => ({
+      key,
+      value,
+      description: `Use "${value}" as the techStack parameter`
+    }));
+
+    const stackList = stacks.map(stack => 
+      `- **${stack.key}**: ${stack.value}`
+    ).join('\n');
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: `# Supported Technology Stacks\n\n${stackList}\n\n## Usage\nUse the exact value (not the key) when calling tools that require a techStack parameter.`
+        }
+      ]
+    };
+  }
+
+  async run() {
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+    console.error("BeforeAfterUI MCP server running on stdio");
+  }
+}
+
+// Start the server
+const server = new BeforeAfterUIServer();
+server.run().catch((error) => {
+  console.error("Server error:", error);
+  process.exit(1);
+});
