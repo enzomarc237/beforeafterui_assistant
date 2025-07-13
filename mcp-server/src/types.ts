@@ -15,9 +15,16 @@ export interface CodeFile {
   content: string;
 }
 
+export interface ImageInput {
+  // Support multiple input methods
+  filePath?: string;    // Local file path
+  url?: string;         // HTTP/HTTPS URL
+  base64?: string;      // Fallback for base64 (discouraged)
+}
+
 export interface UITransformationRequest {
-  beforeImage: string; // base64 encoded image
-  afterImage: string;  // base64 encoded image
+  beforeImage: ImageInput;
+  afterImage: ImageInput;
   techStack: TechStack;
   beforeCodeFiles?: CodeFile[];
   additionalInstructions?: string;
@@ -30,7 +37,7 @@ export interface UITransformationResponse {
 }
 
 export interface ImageAnalysisRequest {
-  imageData: string; // base64 encoded image
+  imageData: ImageInput;
   analysisType: 'ui-components' | 'design-patterns' | 'accessibility' | 'general';
   techStack?: TechStack;
 }

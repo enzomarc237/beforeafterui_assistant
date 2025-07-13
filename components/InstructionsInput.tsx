@@ -1,10 +1,11 @@
 import React from 'react';
 
 interface InstructionsInputProps {
+  value: string;
   onInstructionsChange: (instructions: string) => void;
 }
 
-const InstructionsInput: React.FC<InstructionsInputProps> = ({ onInstructionsChange }) => {
+const InstructionsInput: React.FC<InstructionsInputProps> = ({ value, onInstructionsChange }) => {
   return (
     <div className="w-full">
       <label htmlFor="instructions-input" className="block text-sm font-medium text-slate-400 mb-2">
@@ -12,6 +13,7 @@ const InstructionsInput: React.FC<InstructionsInputProps> = ({ onInstructionsCha
       </label>
       <textarea
         id="instructions-input"
+        value={value}
         onChange={(e) => onInstructionsChange(e.target.value)}
         placeholder="e.g., 'Focus on accessibility improvements' or 'Make sure the new button matches our design system's primary button style.'"
         rows={8}

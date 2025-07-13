@@ -2,31 +2,63 @@
 
 This document provides practical examples of how to use the BeforeAfterUI MCP server tools.
 
+## 🚀 Efficient Image Input Methods
+
+**Recommended approaches (in order of preference):**
+1. **File paths** - Most efficient, no context bloat
+2. **URLs** - Good for web images, moderate efficiency  
+3. **Base64** - Discouraged, causes context window bloat
+
 ## Tool: `transform_ui`
 
 Transform a UI from current state to target design using before/after images.
 
-### Example 1: Basic UI Transformation
+### Example 1: Using Local File Paths (Recommended)
 
 ```json
 {
   "tool": "transform_ui",
   "arguments": {
-    "beforeImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-    "afterImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "beforeImage": {
+      "filePath": "./screenshots/current-ui.png"
+    },
+    "afterImage": {
+      "filePath": "./screenshots/target-design.png"
+    },
     "techStack": "React with Tailwind CSS"
   }
 }
 ```
 
-### Example 2: UI Transformation with Existing Code
+### Example 2: Using URLs (Good for Web Images)
 
 ```json
 {
   "tool": "transform_ui",
   "arguments": {
-    "beforeImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-    "afterImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "beforeImage": {
+      "url": "https://example.com/current-ui.png"
+    },
+    "afterImage": {
+      "url": "https://example.com/target-design.png"
+    },
+    "techStack": "React with Tailwind CSS"
+  }
+}
+```
+
+### Example 3: With Existing Code Files
+
+```json
+{
+  "tool": "transform_ui",
+  "arguments": {
+    "beforeImage": {
+      "filePath": "./ui-screenshots/before.png"
+    },
+    "afterImage": {
+      "filePath": "./ui-screenshots/after.png"
+    },
     "techStack": "React with Tailwind CSS",
     "beforeCodeFiles": [
       {
@@ -43,14 +75,18 @@ Transform a UI from current state to target design using before/after images.
 }
 ```
 
-### Example 3: Mobile-First Transformation
+### Example 4: Mobile-First Transformation
 
 ```json
 {
   "tool": "transform_ui",
   "arguments": {
-    "beforeImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-    "afterImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "beforeImage": {
+      "filePath": "./mobile-ui/current.png"
+    },
+    "afterImage": {
+      "filePath": "./mobile-ui/target.png"
+    },
     "techStack": "React Native with StyleSheet",
     "additionalInstructions": "Optimize for mobile devices with touch-friendly interactions and responsive design"
   }
@@ -61,26 +97,30 @@ Transform a UI from current state to target design using before/after images.
 
 Analyze a single UI image for various aspects.
 
-### Example 1: Component Analysis
+### Example 1: Component Analysis with File Path
 
 ```json
 {
   "tool": "analyze_ui_image",
   "arguments": {
-    "imageData": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "imageData": {
+      "filePath": "./ui-analysis/dashboard.png"
+    },
     "analysisType": "ui-components",
     "techStack": "React with Tailwind CSS"
   }
 }
 ```
 
-### Example 2: Design Pattern Analysis
+### Example 2: Design Pattern Analysis with URL
 
 ```json
 {
   "tool": "analyze_ui_image",
   "arguments": {
-    "imageData": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "imageData": {
+      "url": "https://dribbble.com/shots/example-ui.png"
+    },
     "analysisType": "design-patterns"
   }
 }
@@ -92,7 +132,9 @@ Analyze a single UI image for various aspects.
 {
   "tool": "analyze_ui_image",
   "arguments": {
-    "imageData": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "imageData": {
+      "filePath": "./accessibility-audit/form.png"
+    },
     "analysisType": "accessibility",
     "techStack": "Vue with Tailwind CSS"
   }
@@ -105,7 +147,9 @@ Analyze a single UI image for various aspects.
 {
   "tool": "analyze_ui_image",
   "arguments": {
-    "imageData": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "imageData": {
+      "filePath": "./ui-review/landing-page.png"
+    },
     "analysisType": "general",
     "techStack": "Angular with Tailwind CSS"
   }
@@ -123,6 +167,45 @@ Get a list of all supported technology stacks.
   "tool": "list_tech_stacks",
   "arguments": {}
 }
+```
+
+## 🎯 Best Practices
+
+### Image Input Efficiency
+
+1. **Use file paths when possible**:
+   ```json
+   "beforeImage": { "filePath": "./screenshots/ui.png" }
+   ```
+
+2. **Use URLs for web images**:
+   ```json
+   "beforeImage": { "url": "https://example.com/ui.png" }
+   ```
+
+3. **Avoid base64 unless necessary**:
+   ```json
+   // Only use as last resort
+   "beforeImage": { "base64": "data:image/png;base64,iVBORw0..." }
+   ```
+
+### File Organization
+
+```
+project/
+├── ui-screenshots/
+│   ├── before/
+│   │   ├── dashboard.png
+│   │   ├── login.png
+│   │   └── profile.png
+│   └── after/
+│       ├── dashboard.png
+│       ├── login.png
+│       └── profile.png
+└── analysis/
+    ├── components/
+    ├── accessibility/
+    └── patterns/
 ```
 
 ## Integration Examples
@@ -146,9 +229,9 @@ Get a list of all supported technology stacks.
 2. Use in Q CLI conversation:
 
 ```
-Can you help me transform this UI? I have a before image and an after image.
-[Upload images]
-Use the beforeafterui___transform_ui tool with React and Tailwind CSS.
+I have UI screenshots in ./screenshots/before.png and ./screenshots/after.png. 
+Can you use the beforeafterui___transform_ui tool to analyze the differences 
+and generate React code for the transformation?
 ```
 
 ### Using with Claude Desktop
@@ -172,7 +255,9 @@ Use the beforeafterui___transform_ui tool with React and Tailwind CSS.
 2. Use in Claude conversation:
 
 ```
-I need to analyze this UI design. Can you use the beforeafterui server to identify the components and suggest improvements for a React implementation?
+I need to analyze this UI design at ./ui-mockups/dashboard.png. 
+Can you use the beforeafterui server to identify the components 
+and suggest improvements for a React implementation?
 ```
 
 ## Common Use Cases
@@ -184,10 +269,10 @@ Transform existing components to match a new design system:
 {
   "tool": "transform_ui",
   "arguments": {
-    "beforeImage": "[current component screenshot]",
-    "afterImage": "[design system component screenshot]",
+    "beforeImage": { "filePath": "./current-components/button.png" },
+    "afterImage": { "filePath": "./design-system/button.png" },
     "techStack": "React with Tailwind CSS",
-    "beforeCodeFiles": [{"name": "Component.tsx", "content": "[existing code]"}],
+    "beforeCodeFiles": [{"name": "Button.tsx", "content": "[existing code]"}],
     "additionalInstructions": "Migrate to our new design system with consistent spacing, colors, and typography"
   }
 }
@@ -200,7 +285,7 @@ Analyze and improve mobile responsiveness:
 {
   "tool": "analyze_ui_image",
   "arguments": {
-    "imageData": "[mobile screenshot]",
+    "imageData": { "filePath": "./mobile-screenshots/checkout.png" },
     "analysisType": "general",
     "techStack": "React with Tailwind CSS"
   }
@@ -214,7 +299,7 @@ Check UI for accessibility issues:
 {
   "tool": "analyze_ui_image",
   "arguments": {
-    "imageData": "[ui screenshot]",
+    "imageData": { "filePath": "./accessibility-review/form.png" },
     "analysisType": "accessibility",
     "techStack": "Vue with Tailwind CSS"
   }
@@ -228,29 +313,35 @@ Generate component documentation from screenshots:
 {
   "tool": "analyze_ui_image",
   "arguments": {
-    "imageData": "[component screenshot]",
+    "imageData": { "filePath": "./component-library/card-variants.png" },
     "analysisType": "ui-components",
     "techStack": "React with Tailwind CSS"
   }
 }
 ```
 
-## Tips for Best Results
+## 🔧 Troubleshooting
 
-1. **High-quality images**: Use clear, high-resolution screenshots
+### Common Issues
+
+1. **File not found**: Ensure file paths are relative to the MCP server's working directory
+2. **URL access**: Check that URLs are publicly accessible and return valid images
+3. **Image format**: Supported formats: PNG, JPG, JPEG, GIF, WebP, BMP
+4. **File permissions**: Ensure the MCP server has read access to image files
+
+### Error Messages
+
+- `Failed to read image file`: Check file path and permissions
+- `Failed to fetch image from URL`: Verify URL accessibility and format
+- `Invalid base64 string format`: Check base64 encoding format
+- `No valid image input provided`: Ensure at least one input method is specified
+
+## 💡 Tips for Best Results
+
+1. **High-quality images**: Use clear, high-resolution screenshots (but not unnecessarily large)
 2. **Consistent lighting**: Ensure screenshots have good contrast
 3. **Complete views**: Include full component/page views when possible
 4. **Specific instructions**: Provide detailed additional instructions
 5. **Relevant code**: Include current implementation code for better transformation suggestions
 6. **Appropriate tech stack**: Choose the tech stack that matches your project
-
-## Error Handling
-
-The server provides detailed error messages for common issues:
-
-- Invalid base64 image format
-- Missing required parameters
-- API key issues
-- Network connectivity problems
-
-Always check the error messages for troubleshooting guidance.
+7. **Organize files**: Keep screenshots organized in logical folder structures

@@ -13,7 +13,8 @@
     "react-dom": "^19.1.0",
     "@google/genai": "^1.9.0",
     "marked": "^13.0.2",
-    "highlight.js": "^11.10.0"
+    "highlight.js": "^11.10.0",
+    "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

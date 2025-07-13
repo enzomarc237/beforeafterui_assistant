@@ -62,3 +62,10 @@ export const DownloadIcon: React.FC<IconProps> = ({ className }) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
     </svg>
 );
+
+export const MagicWandIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-2.812.878l-.538.538a2.25 2.25 0 00-.823 1.573l-.01 3.864a2.25 2.25 0 002.25 2.25h3.864a2.25 2.25 0 001.573-.823l.538-.538a3 3 0 00.878-2.812l-.011-.011M11.96 12.866a3.75 3.75 0 00-5.234 5.234 3.75 3.75 0 005.234-5.234zm1.06-1.06a3.75 3.75 0 00-5.234 5.234 3.75 3.75 0 005.234-5.234zM16.5 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M18 9.75a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+  </svg>
+);

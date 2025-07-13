@@ -55,12 +55,40 @@ class BeforeAfterUIServer {
               type: "object",
               properties: {
                 beforeImage: {
-                  type: "string",
-                  description: "Base64 encoded image of the current UI state"
+                  type: "object",
+                  properties: {
+                    filePath: {
+                      type: "string",
+                      description: "Local file path to the current UI image (recommended)"
+                    },
+                    url: {
+                      type: "string",
+                      description: "HTTP/HTTPS URL to the current UI image (recommended)"
+                    },
+                    base64: {
+                      type: "string",
+                      description: "Base64 encoded image data (discouraged - use filePath or url instead)"
+                    }
+                  },
+                  description: "Current UI image - provide either filePath, url, or base64"
                 },
                 afterImage: {
-                  type: "string",
-                  description: "Base64 encoded image of the target UI design"
+                  type: "object",
+                  properties: {
+                    filePath: {
+                      type: "string",
+                      description: "Local file path to the target UI design image (recommended)"
+                    },
+                    url: {
+                      type: "string",
+                      description: "HTTP/HTTPS URL to the target UI design image (recommended)"
+                    },
+                    base64: {
+                      type: "string",
+                      description: "Base64 encoded image data (discouraged - use filePath or url instead)"
+                    }
+                  },
+                  description: "Target UI design image - provide either filePath, url, or base64"
                 },
                 techStack: {
                   type: "string",
@@ -94,8 +122,22 @@ class BeforeAfterUIServer {
               type: "object",
               properties: {
                 imageData: {
-                  type: "string",
-                  description: "Base64 encoded image data"
+                  type: "object",
+                  properties: {
+                    filePath: {
+                      type: "string",
+                      description: "Local file path to the UI image (recommended)"
+                    },
+                    url: {
+                      type: "string",
+                      description: "HTTP/HTTPS URL to the UI image (recommended)"
+                    },
+                    base64: {
+                      type: "string",
+                      description: "Base64 encoded image data (discouraged - use filePath or url instead)"
+                    }
+                  },
+                  description: "UI image to analyze - provide either filePath, url, or base64"
                 },
                 analysisType: {
                   type: "string",

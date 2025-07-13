@@ -1,5 +1,8 @@
 import { GoogleGenerativeAI, GenerateContentResult } from "@google/generative-ai";
-import { TechStack, CodeFile, UITransformationRequest, ImageAnalysisRequest } from "./types.js";
+import { TechStack, CodeFile, UITransformationRequest, ImageAnalysisRequest, ImageInput } from "./types.js";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 
 export class GeminiService {
   private genAI: GoogleGenerativeAI;
@@ -9,6 +12,60 @@ export class GeminiService {
       throw new Error("Gemini API key is required");
     }
     this.genAI = new GoogleGenerativeAI(apiKey);
+  }
+
+  private async imageInputToGenerativePart(imageInput: ImageInput) {
+    let base64Data: string;
+    
+    if (imageInput.filePath) {
+      // Read from local file system
+      try {
+        const buffer = readFileSync(resolve(imageInput.filePath));
+        const mimeType = this.getMimeTypeFromPath(imageInput.filePath);
+        base64Data = `data:${mimeType};base64,${buffer.toString('base64')}`;
+      } catch (error) {
+        throw new Error(`Failed to read image file: ${imageInput.filePath}. ${error}`);
+      }
+    } else if (imageInput.url) {
+      // Fetch from URL
+      try {
+        const response = await fetch(imageInput.url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const buffer = await response.arrayBuffer();
+        const mimeType = response.headers.get('content-type') || 'image/jpeg';
+        base64Data = `data:${mimeType};base64,${Buffer.from(buffer).toString('base64')}`;
+      } catch (error) {
+        throw new Error(`Failed to fetch image from URL: ${imageInput.url}. ${error}`);
+      }
+    } else if (imageInput.base64) {
+      // Use provided base64 (fallback)
+      base64Data = imageInput.base64;
+    } else {
+      throw new Error("No valid image input provided. Use filePath, url, or base64.");
+    }
+
+    return this.fileToGenerativePart(base64Data);
+  }
+
+  private getMimeTypeFromPath(filePath: string): string {
+    const ext = filePath.toLowerCase().split('.').pop();
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      case 'webp':
+        return 'image/webp';
+      case 'bmp':
+        return 'image/bmp';
+      default:
+        return 'image/jpeg'; // Default fallback
+    }
   }
 
   private fileToGenerativePart(base64Data: string) {
@@ -39,8 +96,8 @@ export class GeminiService {
     try {
       const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
-      const beforeImagePart = this.fileToGenerativePart(request.beforeImage);
-      const afterImagePart = this.fileToGenerativePart(request.afterImage);
+      const beforeImagePart = await this.imageInputToGenerativePart(request.beforeImage);
+      const afterImagePart = await this.imageInputToGenerativePart(request.afterImage);
       
       const formattedCode = this.formatCodeFiles(request.beforeCodeFiles || []);
 
@@ -98,7 +155,7 @@ Analyze the two images and the provided code/instructions, then generate the tra
     try {
       const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
-      const imagePart = this.fileToGenerativePart(request.imageData);
+      const imagePart = await this.imageInputToGenerativePart(request.imageData);
       
       let prompt = "";
       

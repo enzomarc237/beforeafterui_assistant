@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { UploadIcon } from './icons';
 
@@ -6,10 +5,10 @@ interface ImageUploaderProps {
   id: string;
   title: string;
   onImageUpload: (base64: string) => void;
+  value: string | null;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ id, title, onImageUpload }) => {
-  const [preview, setPreview] = useState<string | null>(null);
+const ImageUploader: React.FC<ImageUploaderProps> = ({ id, title, onImageUpload, value }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const handleFileChange = useCallback((file: File | null) => {
@@ -17,7 +16,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ id, title, onImageUpload 
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        setPreview(base64String);
         onImageUpload(base64String);
       };
       reader.readAsDataURL(file);
@@ -58,8 +56,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ id, title, onImageUpload 
         onDrop={onDrop}
         className={`relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-slate-700/50 transition-colors duration-300 ${isDragging ? 'border-indigo-400 bg-slate-700' : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700'}`}
       >
-        {preview ? (
-          <img src={preview} alt="Preview" className="object-contain h-full w-full rounded-lg p-1" />
+        {value ? (
+          <img src={value} alt="Preview" className="object-contain h-full w-full rounded-lg p-1" />
         ) : (
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             <UploadIcon className="w-10 h-10 mb-3 text-slate-400" />

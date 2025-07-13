@@ -1,5 +1,6 @@
 {
   "name": "BeforeAfterUI: AI-Powered UI Transformation Assistant",
   "description": "An AI-powered application to analyze differences between UI screenshots and design mockups, providing intelligent transformation guidance and code suggestions for various technology stacks.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "prompt": ""
 }

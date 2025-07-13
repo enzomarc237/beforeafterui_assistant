@@ -14,10 +14,31 @@
     "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
     "@google/genai": "https://esm.sh/@google/genai@^1.9.0",
     "marked": "https://esm.sh/marked@^13.0.2",
-    "highlight.js": "https://esm.sh/highlight.js@^11.10.0"
+    "highlight.js": "https://esm.sh/highlight.js@^11.10.0",
+    "react-transition-group": "https://esm.sh/react-transition-group@^4.4.5"
   }
 }
 </script>
+<style>
+  .fade-enter {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  .fade-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 200ms, transform 200ms;
+  }
+  .fade-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .fade-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 200ms, transform 200ms;
+  }
+</style>
 <link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-slate-900 text-slate-200">

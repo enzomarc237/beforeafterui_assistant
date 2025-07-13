@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { marked } from 'marked';
+import { Marked } from 'marked';
 import hljs from 'highlight.js';
 import { CopyIcon, DownloadIcon } from './icons';
 
-marked.use({
+const marked = new Marked({
   gfm: true,
   breaks: true,
   highlight: (code: string, lang: string) => {
@@ -48,6 +48,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, isLoading }) => {
         console.error('Markdown parsing error:', error);
         setSanitizedHtml('<p class="text-red-400">Could not render the analysis.</p>');
       }
+    } else {
+        setSanitizedHtml('');
     }
   }, [result]);
   
@@ -81,12 +83,12 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, isLoading }) => {
 
   return (
     <div className="relative w-full max-w-4xl mx-auto bg-slate-800/70 border border-slate-700 rounded-2xl shadow-2xl min-h-[200px]">
-      <div className="absolute top-4 right-4 flex gap-2">
-        <button onClick={handleCopy} className="flex items-center gap-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 px-3 py-1.5 rounded-md text-sm transition-colors">
+      <div className="absolute top-4 right-4 flex gap-2 z-10">
+        <button onClick={handleCopy} disabled={isLoading || !result} className="flex items-center gap-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 px-3 py-1.5 rounded-md text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <CopyIcon className="w-4 h-4" />
             {copyButtonText}
         </button>
-        <button onClick={handleExport} className="flex items-center gap-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 px-3 py-1.5 rounded-md text-sm transition-colors">
+        <button onClick={handleExport} disabled={isLoading || !result} className="flex items-center gap-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 px-3 py-1.5 rounded-md text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <DownloadIcon className="w-4 h-4" />
             Export
         </button>
@@ -94,7 +96,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, isLoading }) => {
 
       <div className="p-6 md:p-8">
         {isLoading && <SkeletonLoader />}
-        {!isLoading && result && (
+        {!isLoading && (result || result === '') && (
           <div 
             className="prose prose-invert prose-slate max-w-none 
                        prose-headings:text-indigo-300 prose-a:text-indigo-400 prose-strong:text-slate-100

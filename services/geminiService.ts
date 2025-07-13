@@ -34,13 +34,13 @@ const formatCodeFiles = (files: CodeFile[]): string => {
   ).join('\n\n');
 };
 
-export const analyzeUiDifference = async (
+export async function* analyzeUiDifferenceStream(
   beforeImageBase64: string,
   afterImageBase64: string,
   beforeCodeFiles: CodeFile[],
   additionalInstructions: string,
   stack: TechStack
-): Promise<string> => {
+): AsyncGenerator<string> {
   try {
     const beforeImagePart = fileToGenerativePart(beforeImageBase64);
     const afterImagePart = fileToGenerativePart(afterImageBase64);
@@ -87,12 +87,16 @@ Analyze the two images and the provided code/instructions, then generate the tra
         ]
     };
     
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const responseStream = await ai.models.generateContentStream({
         model: 'gemini-2.5-flash',
         contents: contents,
     });
     
-    return response.text;
+    for await (const chunk of responseStream) {
+      if (chunk.text) {
+        yield chunk.text;
+      }
+    }
 
   } catch (error) {
     console.error("Error in Gemini API call:", error);
