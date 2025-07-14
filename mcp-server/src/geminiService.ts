@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI, GenerateContentResult } from "@google/generative-ai";
-import { TechStack, CodeFile, UITransformationRequest, ImageAnalysisRequest, ImageInput } from "./types.js";
+import { TechStack, CodeFile, UITransformationRequest, ImageAnalysisRequest, ImageInput, CodeInput } from "./types.js";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
@@ -83,13 +83,46 @@ export class GeminiService {
     };
   }
 
-  private formatCodeFiles(files: CodeFile[]): string {
+  private async formatCodeFiles(files: CodeFile[]): Promise<string> {
     if (!files || files.length === 0) {
       return "No code was provided for the current UI.";
     }
-    return files.map(file => 
-      `--- FILE: ${file.name} ---\n\`\`\`\n${file.content}\n\`\`\``
-    ).join('\n\n');
+    
+    const formattedFiles = await Promise.all(
+      files.map(async (file) => {
+        const content = await this.resolveCodeInput(file.input);
+        return `--- FILE: ${file.name} ---\n\`\`\`\n${content}\n\`\`\``;
+      })
+    );
+    
+    return formattedFiles.join('\n\n');
+  }
+
+  private async resolveCodeInput(codeInput: CodeInput): Promise<string> {
+    if (codeInput.filePath) {
+      // Read from local file system
+      try {
+        return readFileSync(resolve(codeInput.filePath), 'utf-8');
+      } catch (error) {
+        throw new Error(`Failed to read code file: ${codeInput.filePath}. ${error}`);
+      }
+    } else if (codeInput.url) {
+      // Fetch from URL
+      try {
+        const response = await fetch(codeInput.url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return await response.text();
+      } catch (error) {
+        throw new Error(`Failed to fetch code from URL: ${codeInput.url}. ${error}`);
+      }
+    } else if (codeInput.content) {
+      // Use provided content (fallback)
+      return codeInput.content;
+    } else {
+      throw new Error("No valid code input provided. Use filePath, url, or content.");
+    }
   }
 
   async analyzeUITransformation(request: UITransformationRequest): Promise<string> {
@@ -99,7 +132,7 @@ export class GeminiService {
       const beforeImagePart = await this.imageInputToGenerativePart(request.beforeImage);
       const afterImagePart = await this.imageInputToGenerativePart(request.afterImage);
       
-      const formattedCode = this.formatCodeFiles(request.beforeCodeFiles || []);
+      const formattedCode = await this.formatCodeFiles(request.beforeCodeFiles || []);
 
       const prompt = `
 You are BeforeAfterUI, an expert UI/UX designer and senior frontend developer specializing in ${request.techStack}.

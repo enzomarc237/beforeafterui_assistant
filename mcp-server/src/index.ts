@@ -100,10 +100,30 @@ class BeforeAfterUIServer {
                   items: {
                     type: "object",
                     properties: {
-                      name: { type: "string" },
-                      content: { type: "string" }
+                      name: { 
+                        type: "string",
+                        description: "Name/identifier for the code file"
+                      },
+                      input: {
+                        type: "object",
+                        properties: {
+                          filePath: {
+                            type: "string",
+                            description: "Local file path to code file (recommended)"
+                          },
+                          url: {
+                            type: "string", 
+                            description: "HTTP/HTTPS URL to code file"
+                          },
+                          content: {
+                            type: "string",
+                            description: "Inline code content (discouraged for large files)"
+                          }
+                        },
+                        description: "Code input - provide either filePath, url, or content"
+                      }
                     },
-                    required: ["name", "content"]
+                    required: ["name", "input"]
                   },
                   description: "Optional array of current code files"
                 },

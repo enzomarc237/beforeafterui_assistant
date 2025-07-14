@@ -1,19 +1,24 @@
-# Image Handling Efficiency Guide
+# Image & Code Handling Efficiency Guide
 
-## 🚨 Why Base64 is Problematic for MCP
+## 🚨 Why Inline Content is Problematic for MCP
 
 ### Context Window Bloat
-- **Base64 encoding increases size by ~33%**
-- A 1MB image becomes ~1.3MB of text
-- Large images can consume 10,000+ tokens
+- **Large code files consume massive token counts**
+- A 500-line React component = ~15,000 tokens
+- Multiple files can exceed context limits entirely
 - Leaves little room for actual analysis and code generation
 
 ### Token Economics
 ```
-Example: 500KB UI screenshot
-├── As file path: "ui-screenshot.png" (3 tokens)
-├── As URL: "https://example.com/ui.png" (8 tokens)  
-└── As base64: ~15,000 tokens (context killer!)
+Example: React component with 300 lines
+├── As file path: "./src/Button.tsx" (4 tokens)
+├── As URL: "https://github.com/user/repo/main/src/Button.tsx" (12 tokens)  
+└── As inline content: ~9,000 tokens (context killer!)
+
+Example: Full codebase (10 files, 200 lines each)
+├── As file paths: ~40 tokens
+├── As URLs: ~120 tokens
+└── As inline content: ~60,000 tokens (impossible!)
 ```
 
 ## ✅ Recommended Approaches
@@ -21,66 +26,111 @@ Example: 500KB UI screenshot
 ### 1. File Paths (Most Efficient)
 ```json
 {
-  "beforeImage": { "filePath": "./screenshots/current.png" },
-  "afterImage": { "filePath": "./screenshots/target.png" }
+  "beforeCodeFiles": [
+    {
+      "name": "Button.tsx",
+      "input": { "filePath": "./src/components/Button.tsx" }
+    },
+    {
+      "name": "Card.tsx", 
+      "input": { "filePath": "./src/components/Card.tsx" }
+    }
+  ]
 }
 ```
 
 **Benefits:**
-- Minimal token usage (2-5 tokens per image)
+- Minimal token usage (3-5 tokens per file)
 - No encoding overhead
-- Direct file system access
+- Supports large codebases
 - Best performance
+- Automatic file reading
 
 **Use when:**
-- Images are stored locally
-- Working with project screenshots
-- Batch processing multiple images
+- Code files are stored locally
+- Working with project codebases
+- Batch processing multiple components
 
-### 2. URLs (Good for Web Images)
+### 2. URLs (Good for Remote Code)
 ```json
 {
-  "beforeImage": { "url": "https://example.com/current.png" },
-  "afterImage": { "url": "https://example.com/target.png" }
+  "beforeCodeFiles": [
+    {
+      "name": "Button.tsx",
+      "input": { "url": "https://raw.githubusercontent.com/user/repo/main/src/Button.tsx" }
+    }
+  ]
 }
 ```
 
 **Benefits:**
-- Low token usage (5-15 tokens per image)
-- Works with web-hosted images
+- Low token usage (8-20 tokens per file)
+- Works with GitHub/GitLab raw files
 - No local storage needed
 - Good for sharing examples
 
 **Use when:**
-- Images are hosted online
-- Sharing designs via URLs
-- Working with public image galleries
+- Code is hosted on GitHub/GitLab
+- Sharing components via URLs
+- Working with public repositories
 
-### 3. Base64 (Last Resort Only)
+### 3. Inline Content (Last Resort Only)
 ```json
 {
-  "beforeImage": { "base64": "data:image/png;base64,iVBORw0..." }
+  "beforeCodeFiles": [
+    {
+      "name": "utils.js",
+      "input": { "content": "export const formatDate = (date) => date.toISOString();" }
+    }
+  ]
 }
 ```
 
 **Drawbacks:**
 - High token usage (thousands of tokens)
 - Context window bloat
-- Encoding/decoding overhead
-- Poor performance
+- Poor performance with large files
 
 **Only use when:**
-- No other option available
-- Images are very small (<50KB)
+- Very small code snippets (<50 lines)
+- No file system access available
 - Temporary debugging
 
 ## 📊 Performance Comparison
 
+### Images
 | Method | Token Usage | Context Impact | Performance | Recommended |
 |--------|-------------|----------------|-------------|-------------|
 | File Path | 2-5 tokens | Minimal | Excellent | ✅ Yes |
 | URL | 5-15 tokens | Low | Good | ✅ Yes |
 | Base64 | 1,000-50,000+ tokens | Severe | Poor | ❌ No |
+
+### Code Files
+| Method | Token Usage (per file) | Context Impact | Performance | Recommended |
+|--------|------------------------|----------------|-------------|-------------|
+| File Path | 3-5 tokens | Minimal | Excellent | ✅ Yes |
+| URL | 8-20 tokens | Low | Good | ✅ Yes |
+| Inline Content | 100-50,000+ tokens | Severe | Poor | ❌ No |
+
+### Real-World Example: Component Analysis
+```
+Analyzing 5 React components (200 lines each):
+
+File Paths:
+├── Token usage: ~25 tokens
+├── Context available: 99.9% for analysis
+└── Performance: Excellent ✅
+
+URLs:
+├── Token usage: ~75 tokens  
+├── Context available: 99.7% for analysis
+└── Performance: Good ✅
+
+Inline Content:
+├── Token usage: ~30,000 tokens
+├── Context available: 70% for analysis
+└── Performance: Poor ❌
+```
 
 ## 🎯 Best Practices
 

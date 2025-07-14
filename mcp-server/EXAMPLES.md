@@ -2,12 +2,32 @@
 
 This document provides practical examples of how to use the BeforeAfterUI MCP server tools.
 
-## 🚀 Efficient Image Input Methods
+## 🚀 Efficient Image & Code Input Methods
 
 **Recommended approaches (in order of preference):**
+
+### For Images:
 1. **File paths** - Most efficient, no context bloat
 2. **URLs** - Good for web images, moderate efficiency  
 3. **Base64** - Discouraged, causes context window bloat
+
+### For Code:
+1. **File paths** - Most efficient, supports large codebases
+2. **URLs** - Good for GitHub/web-hosted code
+3. **Inline content** - Only for small snippets (<100 lines)
+
+### Token Usage Comparison:
+```
+Large React component (500 lines):
+├── File path: "./src/Component.tsx" (4 tokens)
+├── URL: "https://github.com/.../Component.tsx" (12 tokens)
+└── Inline content: ~15,000 tokens (context killer!)
+
+Multiple files:
+├── 10 file paths: ~40 tokens
+├── 10 URLs: ~120 tokens  
+└── 10 inline files: ~150,000 tokens (impossible!)
+```
 
 ## Tool: `transform_ui`
 
@@ -47,7 +67,7 @@ Transform a UI from current state to target design using before/after images.
 }
 ```
 
-### Example 3: With Existing Code Files
+### Example 3: With Existing Code Files (File-Based - Recommended)
 
 ```json
 {
@@ -63,14 +83,88 @@ Transform a UI from current state to target design using before/after images.
     "beforeCodeFiles": [
       {
         "name": "Button.tsx",
-        "content": "import React from 'react';\n\nexport const Button = ({ children, onClick }) => {\n  return (\n    <button \n      className=\"bg-blue-500 text-white px-4 py-2 rounded\"\n      onClick={onClick}\n    >\n      {children}\n    </button>\n  );\n};"
+        "input": {
+          "filePath": "./src/components/Button.tsx"
+        }
       },
       {
-        "name": "Card.tsx",
-        "content": "import React from 'react';\n\nexport const Card = ({ title, content }) => {\n  return (\n    <div className=\"border rounded-lg p-4 shadow-sm\">\n      <h3 className=\"text-lg font-semibold mb-2\">{title}</h3>\n      <p className=\"text-gray-600\">{content}</p>\n    </div>\n  );\n};"
+        "name": "Card.tsx", 
+        "input": {
+          "filePath": "./src/components/Card.tsx"
+        }
+      },
+      {
+        "name": "styles.css",
+        "input": {
+          "filePath": "./src/styles/components.css"
+        }
       }
     ],
     "additionalInstructions": "Make the design more modern with darker colors and better spacing. Add hover effects to interactive elements."
+  }
+}
+```
+
+### Example 3b: With Code from URLs
+
+```json
+{
+  "tool": "transform_ui",
+  "arguments": {
+    "beforeImage": {
+      "filePath": "./ui-screenshots/before.png"
+    },
+    "afterImage": {
+      "filePath": "./ui-screenshots/after.png"
+    },
+    "techStack": "React with Tailwind CSS",
+    "beforeCodeFiles": [
+      {
+        "name": "Button.tsx",
+        "input": {
+          "url": "https://raw.githubusercontent.com/user/repo/main/src/Button.tsx"
+        }
+      },
+      {
+        "name": "Card.tsx",
+        "input": {
+          "url": "https://raw.githubusercontent.com/user/repo/main/src/Card.tsx"
+        }
+      }
+    ],
+    "additionalInstructions": "Modernize the components following our new design system"
+  }
+}
+```
+
+### Example 3c: Mixed Code Input (Fallback)
+
+```json
+{
+  "tool": "transform_ui",
+  "arguments": {
+    "beforeImage": {
+      "filePath": "./ui-screenshots/before.png"
+    },
+    "afterImage": {
+      "filePath": "./ui-screenshots/after.png"
+    },
+    "techStack": "React with Tailwind CSS",
+    "beforeCodeFiles": [
+      {
+        "name": "Button.tsx",
+        "input": {
+          "filePath": "./src/components/Button.tsx"
+        }
+      },
+      {
+        "name": "utils.js",
+        "input": {
+          "content": "// Small utility function\nexport const formatDate = (date) => date.toISOString();"
+        }
+      }
+    ],
+    "additionalInstructions": "Keep the utility functions but update the Button component styling"
   }
 }
 ```
@@ -202,7 +296,21 @@ project/
 │       ├── dashboard.png
 │       ├── login.png
 │       └── profile.png
+├── code/
+│   ├── current/
+│   │   ├── components/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   └── Modal.tsx
+│   │   └── styles/
+│   │       ├── components.css
+│   │       └── layout.css
+│   └── target/
+│       └── design-system/
+│           ├── Button.tsx
+│           └── Card.tsx
 └── analysis/
+    ├── transformations/
     ├── components/
     ├── accessibility/
     └── patterns/

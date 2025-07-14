@@ -10,16 +10,23 @@ export enum TechStack {
   ReactNative = "React Native with StyleSheet",
 }
 
-export interface CodeFile {
-  name: string;
-  content: string;
-}
-
 export interface ImageInput {
   // Support multiple input methods
   filePath?: string;    // Local file path
   url?: string;         // HTTP/HTTPS URL
   base64?: string;      // Fallback for base64 (discouraged)
+}
+
+export interface CodeInput {
+  // Support multiple input methods for code
+  filePath?: string;    // Local file path (recommended)
+  content?: string;     // Inline content (discouraged for large files)
+  url?: string;         // HTTP/HTTPS URL to code file
+}
+
+export interface CodeFile {
+  name: string;
+  input: CodeInput;
 }
 
 export interface UITransformationRequest {
